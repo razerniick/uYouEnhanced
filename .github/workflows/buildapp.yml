@@ -112,13 +112,13 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
-      - name: Hash YT ipa url
+      - name: Hash YT IPA URL
         run: |
           URL_YT="$(jq -r '.inputs.decrypted_youtube_url' $GITHUB_EVENT_PATH)"
           echo ::add-mask::$URL_YT
           echo URL_YT=$URL_YT >> $GITHUB_ENV
 
-      - name: Prepare YouTube iPA
+      - name: Prepare YouTube IPA
         id: prepare_youtube
         run: |
           wget "$YOUTUBE_URL" --quiet --no-verbose -O main/YouTube.ipa
@@ -144,15 +144,23 @@ jobs:
           echo -e "==> \033[1mSHASUM256: $(shasum -a 256 packages/*.ipa | cut -f1 -d' ')\033[0m"
           echo -e "==> \033[1mBundle ID: ${{ env.BUNDLE_ID }}\033[0m"
 
-      - name: List packages folder
-        run: ls -la ${{ github.workspace }}/main/packages
+      - name: Debug: List files after build
+        run: |
+          echo "Contents of main/packages:"
+          ls -la ${{ github.workspace }}/main/packages || echo "No files in packages"
+          echo "Contents of main:"
+          ls -la ${{ github.workspace }}/main
+          echo "Contents of Payload:"
+          ls -la ${{ github.workspace }}/main/Payload
 
-      - name: Upload IPA Artifact
+      - name: Upload IPA Artifact (robust)
         if: ${{ inputs.upload_artifact }}
         uses: actions/upload-artifact@v4.6.2
         with:
           name: uYouEnhanced_${{ steps.prepare_youtube.outputs.youtube_version }}_${{ inputs.uyou_version }}
-          path: ${{ github.workspace }}/main/packages/*.ipa
+          path: |
+            ${{ github.workspace }}/main/packages/*.ipa
+            ${{ github.workspace }}/main/*.ipa
           if-no-files-found: fail
 
       - name: Create Release
