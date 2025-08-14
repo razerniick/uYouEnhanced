@@ -182,6 +182,12 @@ jobs:
 
           - name: Upload IPA
   uses: actions/upload-artifact@v3
+
+  - name: Upload IPA
+  uses: actions/upload-artifact@v3
+  with:
+    name: uYouEnhanced-IPA
+    path: ./build/uYouEnhanced.ipa
   with:
     name: uYouEnhanced-IPA
     path: ./build/uYouEnhanced.ipa
